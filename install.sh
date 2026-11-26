@@ -700,7 +700,7 @@ banner2() {
     echo -e "${c}╰════════════════════════════════════════════════⊷"
 }
 
-options=("Free Usage" "Premium")
+options=()
 selected=0
 
 display_menu() {
@@ -709,8 +709,9 @@ display_menu() {
     echo
     echo -e " ${g}■ \e[4m${p}Select An Option\e[0m ${g}▪${n}"
     echo
+
     for i in "${!options[@]}"; do
-        if [ $i -eq $selected ]; then
+        if (( i == selected )); then
             echo -e " ${g}${D}> ${c}${options[$i]} ${g}<${D}${n}"
         else
             echo -e "     ${options[$i]}"
@@ -771,20 +772,23 @@ while true; do
     fi
 
     case "$input" in
-        $'\x1b[A' | $'\e[A') # Up
+        $'\x1b[A' | $'\e[A')
             ((selected--))
             ((selected < 0)) && selected=$((${#options[@]} - 1))
             ;;
 
-        $'\x1b[B' | $'\e[B') # Down
+        $'\x1b[B' | $'\e[B')
             ((selected++))
             ((selected >= ${#options[@]})) && selected=0
             ;;
 
         "")
-            case ${options[$selected]} in
-                # Other options stay here
-            esac
+            [[ ${#options[@]} -gt 0 ]] && {
+                case "${options[$selected]}" in
+                    # Add other options here
+                    ;;
+                esac
+            }
             ;;
     esac
 done
