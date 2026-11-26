@@ -1,0 +1,289 @@
+ZSH_THEME="bannerx"
+
+export TERM="xterm-256color"
+export COLORTERM="truecolor"
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+if [ -d "/data/data/com.termux/files/usr/" ]; then
+    export ZSH=$HOME/.oh-my-zsh
+    BANNERX_DIR="$HOME/.bannerx"
+    D1="$HOME/.termux"
+    PLUGINS_DIR="/data/data/com.termux/files/home/.oh-my-zsh/plugins"
+    alias rdx='termux-reload-settings'
+else
+    export ZSH=$HOME/.oh-my-zsh
+    BANNERX_DIR="$HOME/.bannerx"
+    D1="$HOME/.BANNER-X"
+    PLUGINS_DIR="$HOME/.oh-my-zsh/plugins"
+    alias rdx='source ~/.zshrc 2>/dev/null'
+fi
+
+plugins=(git)
+
+if [ -f "$ZSH/oh-my-zsh.sh" ]; then
+    source "$ZSH/oh-my-zsh.sh" >/dev/null 2>&1
+fi
+
+if [ -f "$PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]; then
+    source "$PLUGINS_DIR/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" >/dev/null 2>&1
+fi
+
+if [ -f "$PLUGINS_DIR/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" ]; then
+    source "$PLUGINS_DIR/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh" >/dev/null 2>&1
+fi
+
+if command -v lsd >/dev/null 2>&1; then
+alias la='lsd -l --blocks size,name --color always | column -c $(tput cols)'
+alias ls='lsd -l --blocks size,name --color always'
+alias lt='lsd --tree --blocks size,name --color always --icon always'
+fi
+
+[ -f "$BANNERX_DIR/uninstall" ] && alias uninstall="$BANNERX_DIR/uninstall"
+[ -f "$BANNERX_DIR/dev" ] && alias dev="$BANNERX_DIR/dev"
+[ -f "$BANNERX_DIR/bannerx" ] && alias bannerx="$BANNERX_DIR/bannerx"
+[ -f "$BANNERX_DIR/dev" ] && alias report="$BANNERX_DIR/dev"
+[ -f "$BANNERX_DIR/update" ] && alias update="$BANNERX_DIR/update"
+[ -f "$BANNERX_DIR/bname" ] && alias bname="$BANNERX_DIR/bname"
+[ -f "$BANNERX_DIR/help" ] && alias help="$BANNERX_DIR/help"
+
+r='\033[91m'
+p='\033[1;95m'
+y='\033[1;93m'
+g='\033[1;92m'
+n='\033[0m'
+b='\033[1;94m'
+c='\033[1;96m'
+
+X='\033[1;92m[\033[1;00m⎯꯭̽𓆩\033[1;92m]\033[1;96m'
+D='\033[1;92m[\033[1;00m〄\033[1;92m]\033[1;93m'
+E='\033[1;92m[\033[1;00m×\033[1;92m]\033[1;91m'
+A='\033[1;92m[\033[1;00m+\033[1;92m]\033[1;92m'
+C='\033[1;92m[\033[1;00m</>\033[1;32m]\033[1;92m'
+lm='\033[96m▱▱▱▱▱▱▱▱▱▱▱▱\033[0m〄\033[96m▱▱▱▱▱▱▱▱▱▱▱▱\033[1;00m'
+dm='\033[93m▱▱▱▱▱▱▱▱▱▱▱▱\033[0m〄\033[93m▱▱▱▱▱▱▱▱▱▱▱▱\033[1;00m'
+
+aHELL="\uf489"
+USER="\uf007"
+TERMINAL="\ue7a2"
+PKGS="\uf8d6"
+UPT="\uf49b"
+CAL="\uf073"
+
+bol='\033[1m'
+bold="${bol}\e[4m"
+THRESHOLD=100
+
+check_disk_usage() {
+    local threshold=${1:-$THRESHOLD}
+    local total_size
+    local used_size
+    local disk_usage
+   
+    total_size=$(df -h "$HOME" | awk 'NR==2 {print $2}')
+    used_size=$(df -h "$HOME" | awk 'NR==2 {print $3}')
+    disk_usage=$(df "$HOME" | awk 'NR==2 {print $5}' | sed 's/%//g')
+
+    if [ -z "$disk_usage" ]; then disk_usage=0; fi
+
+    if [ "$disk_usage" -ge "$threshold" ]; then
+        echo -e " ${g}[${n}${g}] ${r}WARN: ${c}Disk Full ${g}${disk_usage}% ${c}| ${c}U${g}${used_size} ${c}of ${c}T${g}${total_size}"
+    else
+        echo -e " ${g}[${n}${g}] ${c}Disk usage: ${g}${disk_usage}% ${c}| ${c}U${g}${used_size} ${c}of ${c}T${g}${total_size}"
+    fi
+}
+
+banner() {
+    command clear
+    echo
+    echo -e "    ${y}░█████╗░░█████╗░██████╗░███████╗██╗░░██╗"
+    echo -e "    ${y}██╔══██╗██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝"
+    echo -e "    ${y}██║░░╚═╝██║░░██║██║░░██║█████╗░░░╚███╔╝░"
+    echo -e "    ${c}██║░░██╗██║░░██║██║░░██║██╔══╝░░░██╔██╗░"
+    echo -e "    ${c}╚█████╔╝╚█████╔╝██████╔╝███████╗██╔╝╚██╗"
+    echo -e "    ${c}░╚════╝░░╚════╝░╚═════╝░╚══════╝╚═╝░░╚═╝${n}"
+    echo
+}
+
+spin() {
+    local label="Updating Tools"
+    local pos=0 dir=1 i bar
+   
+    while kill -0 "$pid" 2>/dev/null; do
+        bar=""
+        for ((i=0; i<10; i++)); do
+            if ((i >= pos && i < pos+3)); then bar+="${g}▰${n}"; else bar+="${c}▱${n}"; fi
+        done
+        printf '\r\033[2K %b[%b%s%b] %b' "$g" "$n" "$label" "$g" "$bar"
+        sleep 0.1 2>/dev/null
+        ((pos+=dir))
+        if ((pos >= 7)); then dir=-1; elif ((pos <= 0)); then dir=1; fi
+    done
+   
+    wait "$pid" 2>/dev/null
+    local rc=$?
+    bar=""
+    if ((rc == 0)); then
+        for ((i=0; i<10; i++)); do bar+="${g}▰${n}"; done
+        printf '\r\033[2K %b[%b%s%b] %b | %bupdated%b\n' "$g" "$n" "$label" "$g" "$bar" "$g" "$n"
+    else
+        for ((i=0; i<10; i++)); do bar+="${c}▱${n}"; done
+        printf '\r\033[2K %b[%b%s%b] %b | %bFAIL%b\n' "$g" "$n" "$label" "$g" "$bar" "$r" "$n"
+    fi
+}
+
+if [ -d "$HOME/BANNER-X" ]; then
+    rm -rf "$HOME/BANNER-X"
+fi
+BANNERX="https://bannerx-server-mauve.vercel.app"
+mkdir -p "$D1"
+UPDATE_LOG="$HOME/.bannerx_update_id.txt"
+
+udp() {
+    if [ -d "$HOME/BANNER-X" ]; then
+        rm -rf "$HOME/BANNER-X"
+    fi
+    if command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+        local update_data=$(curl -s --connect-timeout 3 "${BANNERX}/update" 2>/dev/null)
+        local server_id=$(echo "$update_data" | jq -r '.id' 2>/dev/null | tr -d '[:space:]')
+        local server_msg=$(echo "$update_data" | jq -r '.message' 2>/dev/null)
+
+        if [ -n "$server_id" ] && [ "$server_id" != "null" ]; then
+            local current_id=""
+            if [ -f "$UPDATE_LOG" ]; then
+                current_id=$(cat "$UPDATE_LOG" 2>/dev/null | tr -d '[:space:]')
+            fi
+
+            if [ "$current_id" != "$server_id" ]; then
+                echo "$server_id" > "$UPDATE_LOG"
+
+                banner
+                echo -e " ${A} ${c}Tools Updated ${n}| ${c}New ${g}$server_msg"
+                sleep 3
+                cd "$HOME" || return
+                rm -rf BANNER-X
+               
+                git clone https://github.com/Alpha-BannerX369/BANNERX.git BANNER-X >/dev/null 2>&1 &
+                pid=$!
+                spin
+               
+                if [ -d "BANNER-X" ]; then
+                    cd BANNER-X || return
+                    bash install.sh
+                fi
+            fi
+        fi
+    fi
+}
+
+load() {
+    command clear
+    echo -e "${TERMINAL}${r}●${n}"
+    sleep 0.2
+    command clear
+    echo -e "${TERMINAL}${r}●${y}●${n}"
+    sleep 0.2
+    command clear
+    echo -e "${TERMINAL}${r}●${y}●${b}●${n}"
+    sleep 0.2
+}
+
+PUT() { echo -en "\033[${1};${2}H"; }
+DRAW() { echo -en "\033%"; echo -en "\033(0"; }
+WRITE() { echo -en "\033(B"; }
+HIDECURSOR() { echo -en "\033[?25l"; }
+NORM() { printf "\033(B\033[?12l\033[?25h"; }
+
+draw_dashboard() {
+    local data=$(check_disk_usage)
+    local widths=$(stty size 2>/dev/null | awk '{print $2}')
+    if [ -z "$widths" ] || [ "$widths" -lt 10 ]; then widths=$(tput cols 2>/dev/null || echo 80); fi
+
+    local width=$widths
+    local var=$((width - 2))
+    local var2=$(printf '═%.0s' $(seq 1 $var))
+    local var3=$(printf ' %.0s' $(seq 1 $var))
+    local var4=$((width - 20))
+    if [ $var4 -lt 1 ]; then var4=1; fi
+
+    local prefix="${TERMINAL}${r}●${y}●${b}●${n}"
+    local clean_prefix=$(echo -e "$prefix" | sed 's/\x1b\[[0-9;]*m//g')
+    local prefix_len=${#clean_prefix}
+    local clean_data=$(echo -e "${data}" | sed 's/\x1b\[[0-9;]*m//g')
+    local data_len=${#clean_data}
+
+    local data_start=$(((width - data_len) / 2))
+    local padding=$((data_start - prefix_len))
+    if [ $padding -lt 0 ]; then padding=0; fi
+
+    local spaces=$(printf '%*s' $padding "")
+
+    PUT 1 1
+    echo -e "${prefix}${spaces}${data}${c}"
+
+    PUT 2 1
+    echo -e "\033[36;1m╔${var2}╗\033[0m"
+    for ((i=3; i<=10; i++)); do
+        PUT $i 1
+        echo -e "\033[36;1m║${var3}║\033[0m"
+    done
+    PUT 11 1
+    echo -e "\033[36;1m╚${var2}╝\033[0m"
+
+    PUT 4 1
+
+    if command -v simu >/dev/null 2>&1; then
+        if command -v codecat >/dev/null 2>&1; then
+            simu -w $width "DX-SIMU" | python3 "$(command -v codecat)" 2>/dev/null || simu -w $width "DX-SIMU" | codecat -random 2>/dev/null || simu -w $width "DX-SIMU"
+        else
+            simu -w $width "DX-SIMU"
+        fi
+    fi
+
+    PUT 2 1
+    echo -e "\033[36;1m╔${var2}╗\033[0m"
+    for ((i=3; i<=10; i++)); do
+        PUT $i 1
+        echo -e "\033[36;1m║\033[0m"
+        PUT $i $width
+        echo -e "\033[36;1m║\033[0m"
+    done
+    PUT 11 1
+    echo -e "\033[36;1m╚${var2}╝\033[0m"
+
+    PUT 10 ${var4}
+    echo -e "\e[1;32m[\e[0m\uf489\e[1;32m] \e[1;36mBANNER X \e[1;36m1.6\e[0m"
+
+    PUT 12 1
+    local ads1=""
+    if command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+        ads1=$(curl -s --connect-timeout 2 "${BANNERX}/ads" | jq -r '.message' 2>/dev/null)
+    fi
+
+    if [ -z "$ads1" ] || [ "$ads1" = "null" ]; then
+        local DATE=$(date +"%Y-%b-%a ${g}—${c} %d")
+        local TM=$(date +"%I:%M:%S ${g}— ${c}%p")
+        echo -e " ${g}[${n}${CAL}${g}] ${c}${TM} ${g}| ${c}${DATE}"
+    else
+        echo -e " ${g}[${n}${PKGS}${g}] ${c}Ｃｏｄｅｘ: ${g}$ads1"
+    fi
+
+    PUT 13 1
+    NORM
+}
+
+smart_clear() {
+    if [ "$1" = "n" ]; then
+        command clear
+    else
+        command clear
+        draw_dashboard
+    fi
+}
+alias clear='smart_clear'
+
+udp &!
+HIDECURSOR
+load
+command clear
+draw_dashboard

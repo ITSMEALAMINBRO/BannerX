@@ -1,0 +1,307 @@
+#!/bin/bash
+
+clear
+r='\033[1;91m'
+p='\033[1;95m'
+y='\033[1;93m'
+g='\033[1;92m'
+n='\033[0m'
+b='\033[1;94m'
+c='\033[1;96m'
+
+LIME='\033[1;32m'
+CYAN='\033[1;36m'
+BLINK='\033[5m'
+NC='\033[0m'
+
+X='\033[1;92m[\033[1;00m⎯꯭̽𓆩\033[1;92m]\033[1;96m'
+D='\033[1;92m[\033[1;00m〄\033[1;92m]\033[1;93m'
+E='\033[1;92m[\033[1;00m×\033[1;92m]\033[1;91m'
+A='\033[1;92m[\033[1;00m+\033[1;92m]\033[1;92m'
+C='\033[1;92m[\033[1;00m</>\033[1;32m]\033[1;92m'
+lm='\033[96m▱▱▱▱▱▱▱▱▱▱▱▱\033[0m〄\033[96m▱▱▱▱▱▱▱▱▱▱▱▱\033[1;00m'
+dm='\033[93m▱▱▱▱▱▱▱▱▱▱▱▱\033[0m〄\033[93m▱▱▱▱▱▱▱▱▱▱▱▱\033[1;00m'
+
+aHELL="\uf489"
+USER="\uf007"
+TERMINAL="\ue7a2"
+PKGS="\uf8d6"
+UPT="\uf49b"
+
+if command -v getprop >/dev/null 2>&1; then
+    MODEL=$(getprop ro.product.model)
+    VENDOR=$(getprop ro.product.manufacturer)
+    VS=$(getprop ro.build.version.release)
+else
+    MODEL=$(cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null || uname -n)
+    VENDOR=$(cat /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null || uname -s)
+    if [ -f /etc/os-release ]; then
+        VS=$(source /etc/os-release && echo "$VERSION_ID")
+        [ -z "$VS" ] && VS=$(source /etc/os-release && echo "$PRETTY_NAME")
+    else
+        VS=$(uname -r)
+    fi
+    [ -z "$MODEL" ] && MODEL="Linux Device"
+    [ -z "$VENDOR" ] && VENDOR="Unknown Vendor"
+    [ -z "$VS" ] && VS="Unknown Version"
+fi
+
+UP=$(date +'%Y-%m-%d %H:%M')
+KERNEL=$(uname -r)
+SHELL=$(basename $SHELL)
+CPU=$(uname -m)
+RAM=$(free | grep Mem | awk '{print $2 / 1024 / 1024}')
+CPU_CORE=$(grep -c processor /proc/cpuinfo)
+TM=$(date +"%T")
+
+exit_script() {
+    clear
+    echo
+    echo
+    echo -e ""
+    echo -e "${c}              (\_/)       ${b}$username${c}"
+    echo -e "              (${y}^_^${c})    ${A} ${g}Hey dear${c}"
+    echo -e "             ⊂(___)づ  ⋅˚₊‧ ଳ ‧₊˚ ⋅"
+    echo
+    echo -e " ${A} ${c}Canceled ${g}Report \033[1;36m"
+    echo
+    exit 0
+}
+
+if [ -d "$HOME/.bannerx" ]; then
+clear
+else
+    echo -e "\n ${g}[${n}$HOST${g}] ${c}BannerX Not Exits${n}\n"
+    exit 1
+fi
+
+if [ -d "/data/data/com.termux/files/usr/" ]; then
+    DIR="$HOME/.termux"
+else
+    DIR="$HOME/.BANNERX"
+fi
+
+mkdir -p "$DIR"
+
+USER_FILE="$DIR/usernames.txt"
+USERNAME_FILE="$USER_FILE"
+
+if [ ! -f "$USER_FILE" ]; then
+    echo -e "\n ${r}[×] Error: BANNERX Not found Your Username.${n}"
+    touch "$USER_FILE" 
+fi
+
+CURRENT_NAME=$(cat "$USER_FILE")
+
+trap exit_script SIGINT SIGTSTP
+echo -e "\e[38;5;154m\e[5m"
+type_effect() {
+    local text="$1"
+    local delay=$2
+    local term_width=$(tput cols)
+    local text_length=${#text}
+    local padding=$(( (term_width - text_length) / 2 ))
+    printf "%${padding}s" ""
+    for ((i=0; i<${#text}; i++)); do
+        printf "${LIME}${BLINK}${text:$i:1}${NC}"
+        if (( RANDOM % 3 == 0 )); then
+            printf "${CYAN}${LIME} ${NC}"
+            sleep 0.05
+            printf "\b"
+        fi
+        sleep "$delay"
+    done
+    echo
+}
+clear
+echo ; echo
+type_effect "[ SYSTEM ACTIVE ]" 0.05
+type_effect "[ HELLO DEAR I'M BANNERX-X ]" 0.05
+type_effect "[ I'M BANNERX DEVELOPER ]" 0.05
+type_effect "[ WELCOME TO BANNERX DEV REPORT ]" 0.05
+type_effect "[ ENJOY OUR BANNERX DEV REPORT ]" 0.05
+type_effect "[ GOODBYE MY DEAR ]" 0.06
+sleep 0.9
+clear
+
+save_username() {
+banner
+    echo -e " ${A} ${c}Enter Your Anonymous ${g}Username${c}"
+    echo
+    echo
+    read -p "[+]──[Enter Your Username]────► " username
+    sleep 1
+    clear
+    echo
+    echo
+    echo -e "		        ${g}Hey ${y}$username"
+    echo -e "${c}              (\_/)"
+    echo -e "              (${y}^ω^${c})     ${g}I'm Dx-Simu${c}"
+    echo -e "             ⊂(___)づ  ⋅˚₊‧ ଳ ‧₊˚ ⋅"
+    echo
+    echo -e " ${A} ${c}Your account created ${g}Successfully¡${c}"
+    echo "$username" > "$USERNAME_FILE"
+    echo
+    sleep 1
+}
+
+banner() {
+echo
+echo
+echo -e "   ${y}░█████╗░░█████╗░██████╗░███████╗██╗░░██╗"
+echo -e "   ${y}██╔══██╗██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝"
+echo -e "   ${y}██║░░╚═╝██║░░██║██║░░██║█████╗░░░╚███╔╝░"
+echo -e "   ${c}██║░░██╗██║░░██║██║░░██║██╔══╝░░░██╔██╗░"
+echo -e "   ${c}╚█████╔╝╚█████╔╝██████╔╝███████╗██╔╝╚██╗"
+echo -e "   ${c}░╚════╝░░╚════╝░╚═════╝░╚══════╝╚═╝░░╚═╝${n}"
+echo -e ""
+}
+
+if [ -s "$USERNAME_FILE" ]; then
+    username=$(cat "$USERNAME_FILE")
+else
+    save_username
+    username=$(cat "$USERNAME_FILE")
+    CURRENT_NAME="$username"
+fi
+
+dxnetcheck() {
+clear
+clear
+echo
+echo -e "               ${g}╔═══════════════╗"
+echo -e "               ${g}║ ${n}</>  ${c}BANNERX-X${g}  ║"
+echo -e "               ${g}╚═══════════════╝"
+echo -e "  ${g}╔════════════════════════════════════════════╗"
+echo -e "  ${g}║  ${C} ${y}Checking Your Internet Connection¡${g}  ║"
+echo -e "  ${g}╚════════════════════════════════════════════╝${n}"
+while true; do
+    curl --silent --head --fail https://github.com > /dev/null
+    if [ "$?" != 0 ]; then
+echo -e "              ${g}╔══════════════════╗"
+echo -e "              ${g}║${C} ${r}No Internet ${g}║"
+echo -e "              ${g}╚══════════════════╝"
+        sleep 2.5
+    else
+        break
+    fi
+done
+clear
+}
+
+THRESHOLD=100
+check_disk_usage() {
+    local threshold=${1:-$THRESHOLD}
+    local total_size
+    local used_size
+    local disk_usage
+
+    total_size=$(df -h "$HOME" | awk 'NR==2 {print $2}')
+    used_size=$(df -h "$HOME" | awk 'NR==2 {print $3}')
+    disk_usage=$(df "$HOME" | awk 'NR==2 {print $5}' | sed 's/%//g')
+
+    if [ "$disk_usage" -ge "$threshold" ]; then
+        echo -e "${g}[${n}\uf0a0${g}] ${r}WARN: ${y}Disk Full ${g}${disk_usage}% ${c}| ${c}U${g}${used_size} ${c}of ${c}T${g}${total_size}"
+    else
+        echo -e "${y}Disk usage: ${g}${disk_usage}% ${c}| ${g}${used_size}"
+    fi
+}
+
+data=$(check_disk_usage)
+
+check_disk_usage2() {
+    local threshold=${1:-$THRESHOLD}
+    local total_size
+    local used_size
+    local disk_usage
+
+    total_size=$(df -h "$HOME" | awk 'NR==2 {print $2}')
+    used_size=$(df -h "$HOME" | awk 'NR==2 {print $3}')
+    disk_usage=$(df "$HOME" | awk 'NR==2 {print $5}' | sed 's/%//g')
+
+    if [ "$disk_usage" -ge "$threshold" ]; then
+        echo -e "WARN: Disk Full ${disk_usage}% | U${used_size} of T${total_size}"
+    else
+        echo -e "Disk usage: ${disk_usage}% | ${used_size}"
+    fi
+}
+
+data2=$(check_disk_usage2)
+
+dxnetcheck
+    echo
+    echo
+    echo -e ""
+    echo -e "${c}              (\_/)       ${b}$username${c}"
+    echo -e "              (${y}^_^${c})    ${A} ${g}Hey dear${c}"
+    echo -e "             ⊂(___)づ  ⋅˚₊‧ ଳ ‧₊˚ ⋅"
+    echo
+    echo -e " ${A} ${b}Please Enter Report to Your ${g}Problem \033[1;34m\n"
+    echo
+    read -p "$(echo -e ${g}[${n}+${g}]──[${n}[Enter Your Report${g}]────►${n}) " report
+    echo
+    sleep 1
+    clear
+    echo
+    echo
+    echo -e ""
+    echo -e "${c}              (\_/)       ${b}$CURRENT_NAME${c}"
+    echo -e "              (${y}^_^${c})    ${A} ${g}Hey dear${c}"
+    echo -e "             ⊂(___)づ  ⋅˚₊‧ ଳ ‧₊˚ ⋅"
+    echo
+    echo -e " ${A} ${b}Are You sure Sending ${g}Report ${g}[${y}yes ${b}| ${y}no${g}] \033[1;36m"
+    echo
+    echo -e "\n${b}╭══ ${g}〄 ${y}ᴄᴏᴅᴇx ${g}〄"
+    echo -e "${b}┃❁ ${g}ᴛᴇʀᴍɪɴᴀʟ: ${y}${SHELL}"
+    echo -e "${b}┃❁ ${g}ᴅᴇᴠɪᴄᴇ: ${y}${VENDOR} ${MODEL}"
+    echo -e "${b}┃❁ ${g}ᴠᴇʀꜱɪᴏɴ: ${y}${VS}"
+    echo -e "${b}┃❁ ${g}ᴅɪꜱᴋ: ${y}${data}"
+    echo -e "${b}┃❁ ${g}ᴄᴘᴜ: ${y}${CPU}"
+    echo -e "${b}┃❁ ${g}ᴄᴘᴜ ᴄᴏʀᴇ: ${y}${CPU_CORE}"
+    echo -e "${b}┃❁ ${g}ᴋᴇʀɴᴇʟ: ${y}${KERNEL}"
+    echo -e "${b}┃❁ ${g}ʀᴀᴍ: ${y}${RAM}"
+    echo -e "${b}┃❁ ${g}ᴜᴘ ᴛɪᴍᴇ: ${y}${UP}"
+    echo -e "${b}┃❁ ${g}ᴛɪᴍᴇ: ${y}${TM}"
+    echo -e "${b}╰┈➤ ${g}[${n}${USER}${g}] ${g}Hey ${y}${username}\n"
+    
+    echo -e "${b}╭═════════════════⊷"
+    echo -e "${b}┃ ${g}[${n}${PKGS}${g}] ${y}ʏᴏᴜʀ ʀᴇᴘᴏʀᴛ:"
+    echo "$report" | fold -s -w 38 | while IFS= read -r line; do
+        echo -e "${b}┃ ${p}${line}"
+    done
+    echo -e "${b}╰═════════════════⊷${n}"
+    echo
+    read -p "$(echo -e ${g}[${n}+${g}]──[${n}Enter Sending ${g}[${b}y${n}/${r}n${g}]────►${n}) " check
+    case $check in
+    y | Y | Yes | yes | YES ) echo
+    echo -e " ${A} ${y}Report Sending ${g}Developer"
+    echo
+FORMATTED_REPORT=$(echo "$report" | fold -s -w 35 | sed 's/^/┃ /')
+MESSAGE="
+<b>╭══ [〄 ᴄᴏᴅᴇx 〄]</b>
+<b>┃❁ ᴛᴏᴏʟꜱ:</b> <code>BANNERX BANNER</code>
+<b>┃❁ ᴛᴇʀᴍɪɴᴀʟ:</b> <code>${SHELL}</code>
+<b>┃❁ ᴅᴇᴠɪᴄᴇ:</b> <code>${VENDOR} ${MODEL}</code>
+<b>┃❁ ᴠᴇʀꜱɪᴏɴ:</b> <code>${VS}</code>
+<b>┃❁ ᴅɪꜱᴋ:</b> <code>${data2}</code>
+<b>┃❁ ᴄᴘᴜ:</b> <code>${CPU}</code>
+<b>┃❁ ᴄᴘᴜ ᴄᴏʀᴇ:</b> <code>${CPU_CORE}</code>
+<b>┃❁ ᴋᴇʀɴᴇʟ:</b> <code>${KERNEL}</code>
+<b>┃❁ ʀᴀᴍ:</b> <code>${RAM}</code>
+<b>┃❁ ᴜᴘ ᴛɪᴍᴇ:</b> <code>${UP}</code>
+<b>┃❁ ᴛɪᴍᴇ:</b> <code>${TM}</code>
+<b>╰┈➤ [🔸️] ᴜꜱᴇʀ:</b> <code>${CURRENT_NAME}</code>
+
+<b>╭═════════════════⊷</b>
+<b>┃ [▫️] ᴜꜱᴇʀ ʀᴇᴘᴏʀᴛ:</b> 
+<code>${FORMATTED_REPORT}</code>
+<b>╰═════════════════⊷</b>
+"
+curl -s -X POST "https://api.telegram.org/bot8165418975:AAEh2LAtF_ZCjf9hG1wZKOneK7gZ5zB4OXw/sendMessage" -d chat_id="6703335929" -d parse_mode="HTML" -d text="$MESSAGE" &> /dev/null
+    exit 0
+    ;;
+    * ) echo
+    echo
+    exit_script
+    ;;
+  esac

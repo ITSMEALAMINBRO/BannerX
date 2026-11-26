@@ -1,0 +1,127 @@
+import sys
+import zlib
+import base64
+import random
+import string
+import subprocess
+import hashlib
+
+SECRET_KEY = "dx-simu-369-jeueu-$x-engine-v4"
+MASTER_KEY = "BannerXX-Master-Key-369"
+STD_MAP  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
+CUST_MAP = "Z9yX8wV7uT6sR5qP4oN3mL2kJ1iH0gFeDcBaAbCdEfGhIjKlMnOpQrStUvWxYz!@$"
+
+def get_trans(mode='enc'):
+    if mode == 'enc':
+        return str.maketrans(STD_MAP, CUST_MAP)
+    return str.maketrans(CUST_MAP, STD_MAP)
+
+def generate_salt(length=16):
+    return ''.join(random.choices(
+        string.ascii_letters + string.digits, k=length
+    ))
+
+def stream_crypt(data: bytes, key: str) -> bytes:
+    key_bytes = key.encode('utf-8')
+    result = bytearray()
+    chunk_size = 32
+
+    for i in range(0, len(data), chunk_size):
+        chunk = data[i:i+chunk_size]
+        hash_chunk = hashlib.sha256(
+            key_bytes + str(i).encode()
+        ).digest()
+
+        for j in range(len(chunk)):
+            result.append(chunk[j] ^ hash_chunk[j])
+
+    return bytes(result)
+
+def encrypt_raw(text):
+    salt = generate_salt()
+    salted_text = f"{salt}::{text}"
+    compressed = zlib.compress(
+        salted_text.encode('utf-8')
+    )
+    crypted = stream_crypt(compressed, SECRET_KEY)
+    b64 = base64.b64encode(crypted).decode('utf-8')
+    return b64.translate(get_trans('enc'))
+
+def decrypt_raw(enc_text):
+    try:
+        std_b64 = enc_text.translate(get_trans('dec'))
+        crypted = base64.b64decode(std_b64)
+        compressed = stream_crypt(crypted, SECRET_KEY)
+        original_salted = zlib.decompress(
+            compressed
+        ).decode('utf-8')
+
+        return original_salted.split("::", 1)[1]
+
+    except Exception:
+        return None
+
+def make_python_loader(enc_text):
+    return f
+
+def make_bash_loader(enc_text):
+    return f
+
+def main():
+    try:
+        if len(sys.argv) < 3:
+            sys.exit(1)
+
+        mode = sys.argv[1]
+
+        if mode == '-d':
+            if len(sys.argv) < 4 or sys.argv[3] != MASTER_KEY:
+                print("\033[1;91m[!] Access Denied.\033[0m")
+                sys.exit(1)
+
+            data = sys.argv[2]
+            decrypted = decrypt_raw(data)
+
+            if decrypted:
+                print(decrypted)
+
+            sys.exit(0)
+
+        if mode == '-r':
+            lang = sys.argv[2]
+            payload = sys.argv[3]
+            decrypted = decrypt_raw(payload)
+
+            if not decrypted:
+                sys.exit(1)
+
+            if lang == 'py':
+                sys.argv = [sys.argv[0]] + sys.argv[4:]
+
+                try:
+                    exec(decrypted, globals())
+                except Exception:
+                    pass
+
+            elif lang == 'sh':
+                args = sys.argv[4:]
+                cmd = ['bash', '-c', decrypted, 'bash'] + args
+                subprocess.call(cmd)
+
+            sys.exit(0)
+
+        data = sys.argv[2]
+        encrypted = encrypt_raw(data)
+
+        if mode == 'py':
+            print(make_python_loader(encrypted))
+        elif mode == 'sh':
+            print(make_bash_loader(encrypted))
+        else:
+            print(encrypted)
+
+    except KeyboardInterrupt:
+        sys.exit(130)
+
+if __name__ == "__main__":
+    main()
